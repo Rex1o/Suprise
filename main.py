@@ -13,15 +13,29 @@ class Modulation(Enum):
     FSK = 'FSK'
 
 # Params
-sequence = '0110101010101011'
+sequence = '0110101000101011'
 modulation = Modulation.ASK
 M = 4
+FREQ_PORTEUSE = 10
+T_PORTEUSE = 1/FREQ_PORTEUSE
 amp_porteuse = 1 # amp max de la porteuse
 bande_passante = 6 # en hertz pour la fsk
 
-def modulate_ask(freq, n, data):
-    amp = np.ran
-    return time , signal
+POINTS_PER_PERIOD = 50
+
+
+
+def modulate_ask(m, data):
+    # Creer lookup table pour les bits
+    amp_lookup_table = np.linspace(0, amp_porteuse, num=m, endpoint=True)
+    amp_values = amp_lookup_table[data]
+    sinValues = np.zeros(len(data) * POINTS_PER_PERIOD)
+    timeValues = np.linspace(0, len(data) * T_PORTEUSE, num=POINTS_PER_PERIOD * len(data), endpoint=True)
+    for i in range(len(data)):
+        index1 = i * POINTS_PER_PERIOD
+        index2 = index1 + POINTS_PER_PERIOD - 1
+        sinValues[index1:index2] = amp_values[i] * np.sin(2 * math.pi * FREQ_PORTEUSE * timeValues[index1:index2])
+    return timeValues ,sinValues
 
 def modulate_bit(values, n): # Return a value of 0 -> m depending on the amount of bits per signal
     return [int(values[i:i + n], 2) for i in range(0, len(values), n)]
@@ -91,7 +105,20 @@ def generate_ask_with_noise(num_bits=1000, amplitude=1.0, snr_db=10):
 
 def main():
     n = get_m_bit_amount(M)
-    beans = modulate_bit(sequence, int(n))
+    bits_to_send = modulate_bit(sequence, int(n))
+    time, values = modulate_ask(M, bits_to_send)
+
+    plt.plot(time, values)
+
+    # Add labels and title
+    plt.xlabel('x values')
+    plt.ylabel('y values')
+    plt.title('Plot of y versus x')
+    plt.grid(True)
+    # plt.legend()
+
+    # Show the plot
+    plt.show()
     pass
 
 if __name__ == "__main__":
