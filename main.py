@@ -16,6 +16,12 @@ def nearest_power_of_two(m):
     n = int(round(math.log2(float(m))))
     return 2 ** n  
 
+def is_valid_snr(SNR, m):
+    if math.pow(2, m) - 1 <= SNR:
+        return True
+    else:
+        return False
+
 def main():
     
     bin_seq = "10110010"        # Sequence binaire
@@ -23,10 +29,42 @@ def main():
     m = 2                       # Ordre de la modulation M-aire
     SNR = 1                     # Rapport signal sur bruit en dB
     bandwidth = 10              # Bande passante en Hz
-    n = 2                       # Nombre de bit par symbole
-
+    n = math.log2(m)            # Nombre de bits par symbole
     fs = 1000                   # Fréquence d'échantillonnage
     fc = bandwidth/2            # Fréquence porteuse
+
+    # Validation de la séquence binaire
+    if not all(bit in '01' for bit in bin_seq):
+        print("La séquence binaire n'est pas valide. Elle doit contenir uniquement des 0 et des 1.")
+        return
+    
+    # Validation de la modulation
+    valid_modulations = ["ASK", "FSK", "PSK"]
+    if modulation not in valid_modulations:
+        print(f"La modulation '{modulation}' n'est pas supportée. Modulations supportées: {valid_modulations}")
+        return
+    
+    # Validation du M
+    is_power, m_sugg = is_power_of_two(m)
+    if not is_power:
+        print(f"Le paramètre M n'est pas une puissance de 2. M suggéré: {m_sugg}")
+        m = m_sugg
+
+    # Validation du SNR
+    if not is_valid_snr(SNR, m):
+        print(f"Le SNR n'est pas suffisant pour la modulation M-aire avec M={m}.")
+        return
+    
+
+
+
+
+
+
+
+    # Affichage du signal avec matplotlib
+    t = np.arange(0, len(bin_seq) * n / fs, 1/fs)
+    signal = np.zeros(len(t))
 
 
 
